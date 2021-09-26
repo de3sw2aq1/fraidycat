@@ -468,6 +468,18 @@ const ImportFrom = (format) => {
   imp.click()
 }
 
+const SaveUserSocialJson = (follows) => {
+  let json = document.getElementById('fraidyscrape-json').value
+  try {
+    JSON.parse(json)    
+  } catch {
+    document.getElementById('fraidyscrape-status').textContent = "Could not parse JSON"
+  }
+  follows.saveUserSocialJson(json)
+  // TODO: not sure what a better way is to show status messages
+  document.getElementById('fraidyscrape-status').textContent = "Saved!"
+}
+
 const ChangeSettings = ({ match, setup }) => (state, {follows}) => {
   return <div id="settings">
     <div class="about">
@@ -501,6 +513,26 @@ const ChangeSettings = ({ match, setup }) => (state, {follows}) => {
       </p>
       <p class="note">This is just for fun - a bookmarks list in HTML.</p>
     </div>
+    <div>
+  <strong>Custom <a href="https://github.com/kickscondor/fraidyscrape">fraidyscrape</a> rules</strong>
+  <button onclick={e =>SaveUserSocialJson(follows)}>Save</button>
+  <span id="fraidyscrape-status"></span>
+  <textarea id="fraidyscrape-json" style="margin-top: 1em; width: calc(100% - 300px); min-width:300px; height: 200px;" placeholder="{
+&quot;example.com&quot;: {
+  &quot;match&quot;: &quot;^example\\.com(/|$)&quot;,
+  &quot;url&quot;: &quot;https://example.com/&quot;,
+  &quot;acceptHtml&quot;: [
+    {&quot;var&quot;: &quot;out:title&quot;, &quot;op&quot;: &quot;=Example&quot;},
+    {&quot;op&quot;: &quot;//a&quot;, &quot;var&quot;: &quot;out:posts&quot;, &quot;acceptHtml&quot;: [
+      {&quot;var&quot;: &quot;out:url&quot;, &quot;op&quot;: &quot;@href&quot;, &quot;mod&quot;: [&quot;url&quot;]},
+      {&quot;var&quot;: &quot;out:title&quot;, &quot;op&quot;: &quot;text()&quot;}
+    ]}
+  ]
+}
+
+}">{state.userSocialJson}</textarea>
+  <p class="note">These rules are merged with (and override) the built in <a href="https://github.com/kickscondor/fraidycat/blob/master/defs/social.json">social.json</a> rules. Please consider contributing any custom rules with a to <a href="https://github.com/kickscondor/fraidycat">fraidycat</a> on GitHub.</p>
+  </div>
     </form>
   </div>
 }

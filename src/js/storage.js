@@ -108,10 +108,20 @@ module.exports = {
           }
         }
 
+        let userDefs = {}
+        try {
+          if (!this.userSocialJson) {
+            this.userSocialJson = await this.readFile('/userSocial.json')
+          }
+          userDefs = JSON.parse(this.userSocialJson)
+        } catch {}
+
         if (defs) {
-          this.socialJson = JSON.stringify(defs)
+          let mergedDefs = {...defs, ...userDefs}
+          this.defs = defs
+          this.socialJson = JSON.stringify(mergedDefs)
           if (pollMod !== mod) {
-            this.scraper = new fraidyscrape(defs, this.dom, this.xpath)
+            this.scraper = new fraidyscrape(mergedDefs, this.dom, this.xpath)
             pollMod = mod
             this.writeFile('/social.json', {defs, mod})
           }
@@ -958,5 +968,19 @@ module.exports = {
     this.write({update: true, follows: [follow.id]})
     this.update({op: 'subscription', follow}, sender)
     this.deleteFile(`/feeds/${follow.id}.json`)
+  },
+
+  //
+  // Save local fraidyscrape user social json config.
+  //
+  async saveUserSocialJson(msg, sender) {
+    this.userSocialJson = msg.userSocialJson
+    this.writeFile('/userSocial.json', this.userSocialJson)
+    let mergedDefs = {...this.defs, ...JSON.parse(this.userSocialJson)}
+    this.socialJson = JSON.stringify(mergedDefs)
+    this.scraper = new fraidyscrape(mergedDefs, this.dom, this.xpath)
+    console.log("updated")
+    // This doesn't work:
+    // this.update({op: 'replace', path: `/userSocialJson`, value: this.userSocialJson})
   }
 }

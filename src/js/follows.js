@@ -138,6 +138,13 @@ export default ({
     //
     exportTo: (format) => ({local}) => {
       local.command("exportTo", {format})
+    },
+
+    //
+    // Save local fraidyscrape user social json config.
+    //
+    saveUserSocialJson: (userSocialJson) => ({local}) => {
+      local.command("saveUserSocialJson", {userSocialJson})
     }
   }
 })
